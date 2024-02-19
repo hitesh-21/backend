@@ -21,7 +21,7 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, "All fields are required");
 
     }
-    const existedUser = User.findOne({
+    const existedUser =  await User.findOne({
         $or: [{ email }, { username }]
     })
 
@@ -29,15 +29,29 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Username or email is existed")
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    // const avatarLocalPath =  req.files?.avatar[0].path;
+        console.log(req.files)
+    // const coverImageLocalPath =   req.files?.coverImage.path;
+// 
+
+// var avatarLocalPath;
+var coverImageLocalPath ;
+if(req.files && Array.isArray(req.files.avatar)&& req.files.avatar.length >0){
+    avatarLocalPath = req.files.avatar[0].path;
+}
+
+// let avatarLocalPath
+
+if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length >0){
+    coverImageLocalPath =req.files.coverImage[0].path
+}
 
     if (!avatarLocalPath) {
-        throw new ApiError(400, "Avatar file is required");
+        throw new ApiError(400, "Avatar file local path is missing");
     }
     const avatar = await uploadOnCloudinary(avatarLocalPath)
     const coverImage = await uploadOnCloudinary(coverImageLocalPath)
-
+console.log('value of avatar local path is given '+avatarLocalPath)
     if (!avatar) {
         throw new ApiError(400, "Avatar file is required");
     }
